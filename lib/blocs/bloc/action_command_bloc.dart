@@ -341,85 +341,179 @@ class ActionCommandBloc extends Bloc<ActionCommandEvent, ActionCommandState> {
             emit(ActionCommandLoadedState(account: account));
           }
           break;
-
         case "deposit":
-          // ignore: dead_code
           if (!isLogin!) {
             account.message = "Please login first";
             emit(ActionCommandLoadedState(account: account));
             // ignore: dead_code
           } else {
             account.accountName = account.accountName;
-            account.accountName = AccountData.accountDataList
-                .firstWhere((e) =>
-                    e.name.toLowerCase() == account.accountName.toLowerCase())
-                .name;
-            var depVal = double.parse(account.param);
             account.message = "Your balance is \$ ${account.balance}";
             var msg1 = "";
             var msg2 = "";
             var msg3 = "";
             var msgSum = "";
 
-            for (var i = 0; i < AccountData.accountDataList.length; i++) {
-              if (account.accountName.toLowerCase() ==
-                  AccountData.accountDataList[i].name.toLowerCase()) {
-                if (AccountData.accountDataList[i].owed.balance > 0) {
-                  if (AccountData.accountDataList[i].owed.fromTo == "to") {
-                    var tempDep =
-                        AccountData.accountDataList[i].owed.balance - depVal;
-                    if (tempDep < 0) {
-                      AccountData.accountDataList
-                          .firstWhere((e) =>
-                              e.name.toLowerCase() ==
-                              AccountData.accountDataList[i].owed.accountName
-                                  .toLowerCase())
-                          .balance += depVal;
+            var depVal = double.parse(account.param);
 
-                      AccountData.accountDataList
-                          .firstWhere((e) =>
-                              e.name.toLowerCase() ==
-                              AccountData.accountDataList[i].owed.accountName
-                                  .toLowerCase())
-                          .owed
-                          .balance -= depVal;
-                    }
-                    AccountData.accountDataList[i].owed.balance -= depVal;
-                  }
+            var accData = AccountData.accountDataList.firstWhere((e) =>
+                e.name.toLowerCase() == account.accountName.toLowerCase());
+            if (accData.owed.accountName == "") {
+              AccountData.accountDataList
+                  .firstWhere((e) =>
+                      e.name.toLowerCase() == account.accountName.toLowerCase())
+                  .balance = depVal;
+
+              msgSum =
+                  "Your balance is \$ ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).balance}\n";
+            } else {
+              var accTemp = AccountData.accountDataList.firstWhere((e) =>
+                  e.name.toLowerCase() == account.accountName.toLowerCase());
+              if (accTemp.owed.fromTo == "to") {
+                var owedVal = AccountData.accountDataList
+                    .firstWhere((e) =>
+                        e.name.toLowerCase() ==
+                        account.accountName.toLowerCase())
+                    .owed
+                    .balance;
+
+                if (depVal > owedVal) {
+                  var tempOwed = depVal - owedVal;
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          account.accountName.toLowerCase())
+                      .owed
+                      .balance = 0;
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          accTemp.owed.accountName.toLowerCase())
+                      .owed
+                      .balance = 0;
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          account.accountName.toLowerCase())
+                      .owed
+                      .fromTo = "";
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          accTemp.owed.accountName.toLowerCase())
+                      .owed
+                      .fromTo = "";
+
+//
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          account.accountName.toLowerCase())
+                      .balance += tempOwed;
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          accTemp.owed.accountName.toLowerCase())
+                      .balance += owedVal;
 
                   msg1 =
-                      "Transferred \$$depVal to ${AccountData.accountDataList[i].owed.accountName}";
-                  if (AccountData.accountDataList[i].owed.balance < 0) {
-                    account.balance =
-                        AccountData.accountDataList[i].owed.balance * -1;
-                    AccountData.accountDataList[i].owed.balance = 0;
-                    AccountData.accountDataList[i].owed.fromTo = "";
-                    AccountData.accountDataList[i].owed.accountName = "";
-                    AccountData.accountDataList[i].balance += depVal;
-                  } else {
-                    account.balance = 0;
-                    msg3 =
-                        "Owed \$${AccountData.accountDataList[i].owed.balance} to ${AccountData.accountDataList[i].owed.accountName}";
-                  }
-                  msg2 = "Your balance is \$${account.balance}";
+                      " Transferred \$$owedVal to ${accTemp.owed.accountName}";
+                  msg2 =
+                      " Your balance is \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).balance}";
+                  msg3 =
+                      " Owed \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.balance} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.fromTo} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.accountName}";
                   msgSum = "$msg1\n$msg2\n $msg3\n";
                 } else {
-                  AccountData.accountDataList[i].balance = depVal;
-                  msgSum =
-                      "Your balance is \$${AccountData.accountDataList[i].balance}\n";
+                  var accTemp = AccountData.accountDataList.firstWhere((e) =>
+                      e.name.toLowerCase() ==
+                      account.accountName.toLowerCase());
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          account.accountName.toLowerCase())
+                      .owed
+                      .balance -= depVal;
+
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          accTemp.owed.accountName.toLowerCase())
+                      .owed
+                      .balance -= depVal;
+                  AccountData.accountDataList
+                      .firstWhere((e) =>
+                          e.name.toLowerCase() ==
+                          accTemp.owed.accountName.toLowerCase())
+                      .balance += depVal;
+
+                  msg1 =
+                      " Transferred \$$depVal to ${accTemp.owed.accountName}";
+                  msg2 =
+                      " Your balance is \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).balance}";
+                  msg3 =
+                      " Owed \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.balance} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.fromTo} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.accountName}";
+                  msgSum = "$msg1\n$msg2\n $msg3\n";
                 }
+              } else {
+                var accTemp = AccountData.accountDataList.firstWhere((e) =>
+                    e.name.toLowerCase() == account.accountName.toLowerCase());
+                AccountData.accountDataList
+                    .firstWhere((e) =>
+                        e.name.toLowerCase() ==
+                        account.accountName.toLowerCase())
+                    .balance = depVal;
+
+                msg1 = " Transferred \$$depVal to ${accTemp.owed.accountName}";
+                msg2 =
+                    " Your balance is \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).balance}";
+                msg3 =
+                    " Owed \$${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.balance} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.fromTo} ${AccountData.accountDataList.firstWhere((e) => e.name.toLowerCase() == account.accountName.toLowerCase()).owed.accountName}";
+                msgSum = "$msg1\n$msg2\n $msg3\n";
               }
             }
             account.message = msgSum;
             emit(ActionCommandLoadedState(account: account));
           }
           break;
+
         case "logout":
           account.accountName = account.accountName;
           account.isLogin = false;
           account.message = "Goodbye, ${account.accountName}! \n\n";
           account.accountName = "";
           emit(ActionCommandLoadedState(account: account));
+          break;
+        case "balance":
+          var msg1 = "";
+          var msg2 = "";
+          var sumMsg = "";
+          if (!isLogin!) {
+            account.message = "Please login first";
+            emit(ActionCommandLoadedState(account: account));
+            // ignore: dead_code
+          } else {
+            account.accountName = account.accountName;
+            var acc = AccountData.accountDataList.firstWhere((e) =>
+                e.name.toLowerCase() == account.accountName.toLowerCase());
+
+            msg1 = "Hello,  Your balance is \$ ${acc.balance}\n";
+            sumMsg = "$msg1 ";
+
+            if (acc.owed.balance > 0) {
+              msg2 =
+                  " Owed \$${acc.owed.balance} ${acc.owed.fromTo} ${acc.owed.accountName}\n";
+              sumMsg = "$msg1 \n$msg2\n";
+            }
+            account.message = sumMsg;
+            emit(ActionCommandLoadedState(account: account));
+          }
+
           break;
         default:
           account.message = "Wrong command!\n";

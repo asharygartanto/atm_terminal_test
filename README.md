@@ -6,6 +6,7 @@ function
 - deposit
 - transfer
 - logout
+- check balance
 
 user data store in constant variables
 
