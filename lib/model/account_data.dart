@@ -11,10 +11,8 @@ class AccountData {
     required this.owed,
   });
 
-  static List<AccountData> accountDataList() {
-    return [
-      AccountData(name: "Alice", balance: 0, owed: Owed()),
-      AccountData(name: "Bob", balance: 0, owed: Owed())
-    ];
-  }
+  static List<AccountData> accountDataList = [
+    AccountData(name: "Alice", balance: 0, owed: Owed()),
+    AccountData(name: "Bob", balance: 0, owed: Owed())
+  ];
 }
